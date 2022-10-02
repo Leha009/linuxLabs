@@ -1,6 +1,5 @@
 #include <iostream>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -21,8 +20,8 @@ int main(int argc, char* argv[])
     unsigned iForkDelay = (unsigned)atoi(argv[3]);
     char* sVforkDelay = argv[4];
 
-    //Open file with create, write and append flags. Mode is READ/WRITE
-    int fd = open(sFilePath, O_CREAT | O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR);
+    //Open file with create, write and append flags.
+    int fd = open(sFilePath, O_CREAT | O_WRONLY | O_APPEND);
 
     if(fd == -1)
     {
@@ -40,7 +39,7 @@ int main(int argc, char* argv[])
     {
         sleep(iForkDelay);
         LogToFile("Fork", fd);
-        //return 0;     // To stop fork doing stuff below
+        return 0;     // To stop fork doing stuff below
     }
 
     pid_t pidVfork = vfork();
@@ -57,15 +56,6 @@ int main(int argc, char* argv[])
     sleep(iMainDelay);
 
     LogToFile("Main", fd);
-
-    // Wait for fork
-    int iExitStatus;
-    int iWaitStatus = waitpid(pidFork, &iExitStatus, 0);
-    if(iWaitStatus == -1)
-    {
-        perror("Can't wait for fork!");
-        return errno;
-    }
 
     close(fd);
 
@@ -84,9 +74,10 @@ void LogToFile(const char* sProccessName, int fd)
 
     std::stringstream ss;
     ss << sProccessName << ": ";
-    ss << "pid is " << pid << ", ppid is " << ppid << ", ";
-    ss << "uid is " << uid << ", euid is " << euid << ", ";
-    ss << "gid is " << gid << ", egid is " << egid << std::endl;
+    ss << "pid:" << pid << ", ppid:" << ppid << ", ";
+    ss << "uid:" << uid << ", euid:" << euid << ", ";
+    ss << "gid:" << gid << ", egid:" << egid;
+    ss << ", sid:" << sid << std::endl;
 
     std::string sOutput = ss.str();
     write(fd, sOutput.c_str(), sOutput.size());

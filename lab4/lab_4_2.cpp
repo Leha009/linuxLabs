@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
     }
 
     std::string sBuffer1, sBuffer2;
-    pthread_t thr1, thr2;
+    pthread_t thr1 = 0, thr2 = 0;
     threadStruct ts1, ts2;
     ts1.pOutFile = &outFile1;
     ts2.pOutFile = &outFile2;
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
             }
         }
 
-        if(getline(inFile, sBuffer2))
+        if(!inFile.eof() && getline(inFile, sBuffer2))
         {
             ts2.stringToWrite = sBuffer2;
             if(pthread_create(&thr2, NULL, ThreadWrite, &ts2))
@@ -68,8 +68,10 @@ int main(int argc, char* argv[])
             }
         }
 
-        pthread_join(thr1, NULL);
-        pthread_join(thr2, NULL);
+        if(thr1)
+            pthread_join(thr1, NULL);
+        if(thr2)
+            pthread_join(thr2, NULL);
     }
 
     inFile.close();

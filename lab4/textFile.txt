@@ -1,6 +1,0 @@
-any text
-here
-to read it
-by thread
-end here for thread1
-end here for thread2
